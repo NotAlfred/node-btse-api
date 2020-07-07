@@ -43,7 +43,7 @@
             const timestamp = Date.now();
             const message = (params && method !== "GET") ? `${endpoint}${timestamp}${JSON.stringify(params)}`: `${endpoint}${timestamp}`;
             const signature = crypto["HmacSHA384"](message, _secret);
-            const query = (method === "GET" && params) ? `?${Object.entries( params ).map( ( [key, val] ) => `${key}=${val}` ).join( "&" )}` : "";
+            const query = (method === "GET" && params) ? `?${Object.entries(params).map(([key, val]) => `${key}=${val}`).join("&")}` : "";
             const authOptions = {
                 method,
                 url: _baseURL + endpoint + query,
