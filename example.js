@@ -22,7 +22,6 @@
      * 360: 6 hours
      * 1440: 1 day
      */
-    /*
     // await btse.ohlcv(symbol);
     await btse.ohlcv(symbol, 1440, 1591369420, 1591337420);
 
@@ -37,8 +36,7 @@
 
     // await btse.trades();
     await btse.trades(symbol, undefined, undefined, 42, true);
-    */
 
-    // await btse.balance();
+    await btse.balance();
 
 })().catch(e => console.log(e));
