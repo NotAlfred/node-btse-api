@@ -6,21 +6,22 @@
     const fs = require("fs");
     const exports = module.exports;
 
-    const _baseURL = "https://api.btse.com/futures";
+    const _baseURL = "https://api.btse.com/";
 
     let _key = "",
         _secret = "",
+        _market = "spot",
+        _version = "v3.2",
         _feed;
 
     const emitter = new EventEmitter();
-
     const instance = axios.create({
         headers: {
             "Content-Type": "application/json",
             "User-Agent": "node-btse-api"
         },
         timeout: 30000,
-        _baseURL
+        baseURL: _baseURL
     });
 
     async function request(url, params = {}) {
@@ -67,13 +68,17 @@
         const json = JSON.parse(fs.readFileSync(file, "utf8"));
         _key = json.key;
         _secret = json.secret;
+        _market = json.market;
+        _version = json.version;
         if (!_key || !_secret) throw "Invalid key, or secret";
     }
 
-    exports.config = (key, secret) => {
+    exports.config = (key, secret, market = "spot", version = "v3.2") => {
         if (!key || !secret) throw "Invalid key, or secret";
         _key = key;
         _secret = secret;
+        _market = market;
+        _version = version;
     }
 
     /**
@@ -83,7 +88,7 @@
     // Retrieves funding history
     exports.fundingHistory = async (symbol = undefined) => {
         return request(
-            "/api/v2.1/funding_history",
+            `${_market}/api/${_version}/funding_history`,
             {
                 symbol
             });
@@ -92,7 +97,7 @@
     // OHLCV Data
     exports.ohlcv = async (symbol, resolution = 30, start = undefined, end = undefined) => {
         return request(
-            "/api/v2.1/ohlcv",
+            `${_market}/api/${_version}/ohlcv`,
             {
                 symbol,
                 resolution,
@@ -105,7 +110,7 @@
     // Market Depth
     exports.orderBook = async (symbol, depth = "10") => {
         return request(
-            "/api/v2.1/ohlcv",
+            `${_market}/api/${_version}/ohlcv`,
             {
                 symbol,
                 depth: depth.toString(),
@@ -116,7 +121,7 @@
     // Market Summaries
     exports.markets = async (symbol = undefined) => {
         return request(
-            "/api/v2.1/market_summary",
+            `${_market}/api/${_version}/market_summary`,
             {
                 symbol,
             }
@@ -126,7 +131,7 @@
     // Get price index
     exports.price = async (symbol = undefined) => {
         return request(
-            "/api/v2.1/price",
+            `${_market}/api/${_version}/price`,
             {
                 symbol,
             }
@@ -140,7 +145,7 @@
                             count = 50,
                             includeOld = false) => {
         return request(
-            "/api/v2.1/trades",
+            `${_market}/api/${_version}/trades`,
             {
                 symbol,
                 "startTime": start,
@@ -158,7 +163,7 @@
     // Account balances
     exports.balance = async (wallet = undefined) => {
         return signedRequest(
-            "/api/v2.1/user/wallet",
+            `${_market}/api/${_version}/user/wallet`,
             (wallet) ? {
                 wallet,
             } : undefined
@@ -166,9 +171,9 @@
     };
 
     // Orders dead man switch
-    exports.balance = async (timeout = 60000) => {
+    exports.cancelAllAfter = async (timeout = 60000) => {
         return signedRequest(
-            "/api/v2.1/order/cancelAllAfter",
+            `${_market}/api/${_version}/order/cancelAllAfter`,
             {
                 timeout
             }
@@ -178,7 +183,7 @@
     /**
      * WebSockets
      */
-
+/*
     function subscribe(payload, events) {
         for (const event of events) {
             emitter.on(event.name, (data) => {
@@ -191,4 +196,6 @@
         }
         _feed.send(JSON.stringify(payload));
     }
+
+ */
 })();

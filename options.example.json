@@ -1,4 +1,6 @@
 {
-  "key": "",
-  "secret": ""
+  "key": "your api key",
+  "secret": "your secret key",
+  "market": "spot/futures",
+  "version": "v3.2"
 }
