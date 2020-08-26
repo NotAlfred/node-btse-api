@@ -42,7 +42,8 @@
     async function signedRequest(endpoint, params = undefined, method = "GET") {
         return new Promise((resolve, reject) => {
             const timestamp = Date.now();
-            const message = (params && method !== "GET") ? `${endpoint}${timestamp}${JSON.stringify(params)}`: `${endpoint}${timestamp}`;
+            const route = endpoint.replace(`${_market}`, "");
+            const message = (params && method !== "GET") ? `${route}${timestamp}${JSON.stringify(params)}`: `${route}${timestamp}`;
             const signature = crypto["HmacSHA384"](message, _secret);
             const query = (method === "GET" && params) ? `?${Object.entries(params).map(([key, val]) => `${key}=${val}`).join("&")}` : "";
             const authOptions = {
@@ -167,6 +168,65 @@
             (wallet) ? {
                 wallet,
             } : undefined
+        );
+    };
+
+    // Limit buy order
+    exports.limitBuy = async (symbol, size, price) => {
+        const side = "BUY";
+        return signedRequest(
+            `${_market}/api/${_version}/order`, {
+                symbol,
+                size,
+                price,
+                side
+            },
+            "POST"
+        );
+    };
+
+    // Limit sell order
+    exports.limitSell = async (symbol, size, price) => {
+        return signedRequest(
+            `${_market}/api/${_version}/order`,{
+                symbol,
+                size,
+                price,
+                side: "SELL"
+            },
+            "POST"
+        );
+    };
+
+    // market buy order
+    exports.marketBuy = async (symbol, size) => {
+        return signedRequest(
+            `${_market}/api/${_version}/order`, {
+                symbol,
+                size,
+            },
+            "POST"
+        );
+    };
+
+    // market sell order
+    exports.marketSell = async (symbol, size) => {
+        return signedRequest(
+            `${_market}/api/${_version}/order`, {
+                symbol,
+                size,
+            },
+            "POST"
+        );
+    };
+
+    // Cancel order
+    exports.cancelOrder = async (orderId) => {
+        return signedRequest(
+            `${_market}/api/${_version}/user/wallet`, {
+                orderId,
+            },
+            "POST"
         );
     };
 
