@@ -1,0 +1,15 @@
+{
+  "name": "node-btse-api",
+  "version": "0.0.1",
+  "main": "btse.js",
+  "dependencies": {
+    "axios": "^0.19.2",
+    "crypto-js": "^4.0.0",
+    "ws": "^7.3.1"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "eslint": "^7.4.0",
+    "mocha": "^8.1.2"
+  }
+}
