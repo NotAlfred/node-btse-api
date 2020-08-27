@@ -173,13 +173,13 @@
 
     // Limit buy order
     exports.limitBuy = async (symbol, size, price) => {
-        const side = "BUY";
         return signedRequest(
             `${_market}/api/${_version}/order`, {
                 symbol,
                 size,
                 price,
-                side
+                type: "LIMIT",
+                side: "BUY"
             },
             "POST"
         );
@@ -192,7 +192,8 @@
                 symbol,
                 size,
                 price,
-                side: "SELL"
+                type: "LIMIT",
+                side: "SELL",
             },
             "POST"
         );
@@ -204,6 +205,8 @@
             `${_market}/api/${_version}/order`, {
                 symbol,
                 size,
+                type: "MARKET",
+                side: "BUY"
             },
             "POST"
         );
@@ -215,6 +218,8 @@
             `${_market}/api/${_version}/order`, {
                 symbol,
                 size,
+                type: "MARKET",
+                side: "SELL",
             },
             "POST"
         );
