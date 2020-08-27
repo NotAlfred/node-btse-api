@@ -225,13 +225,29 @@
         );
     };
 
-    // Cancel order
-    exports.cancelOrder = async (orderId) => {
+    // Get open orders
+    exports.openOrders = async (symbol, orderID = undefined, clOrderID = undefined) => {
+        console.log(symbol);
         return signedRequest(
-            `${_market}/api/${_version}/user/wallet`, {
-                orderId,
+            `${_market}/api/${_version}/user/open_orders`, {
+                symbol,
+                orderID,
+                clOrderID
             },
-            "POST"
+            "GET"
+        );
+    };
+
+    // Cancel order
+    exports.cancelOrder = async (symbol, orderID = undefined, clOrderID = undefined) => {
+        console.log(symbol);
+        return signedRequest(
+            `${_market}/api/${_version}/order`, {
+                symbol,
+                orderID,
+                clOrderID
+            },
+            "DELETE"
         );
     };
 
