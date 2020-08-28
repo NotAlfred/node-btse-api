@@ -1,5 +1,5 @@
 # node-btse-api
-Node.JS connector for the BTSE API
+Node.JS connector for the BTSE API      
 Don't have an account ? Signup with my [referral link](https://www.btse.com/en/ref?c=LPUifX) and get a fee discount
 ## Setup
 ```sh
