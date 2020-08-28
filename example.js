@@ -1,7 +1,7 @@
 (async () => {
-    const btse = require("./btse");
+    const btse = require("node-btse-api");
 
-    const symbol = "BTCPFC";
+    const symbol = "BTSE-USDT";
 
     /**
      * Can setup with your API keys in a file or directly in as arguments
@@ -22,7 +22,6 @@
      * 360: 6 hours
      * 1440: 1 day
      */
-    /*
     // await btse.ohlcv(symbol);
     await btse.ohlcv(symbol, 1440, 1591369420, 1591337420);
 
@@ -35,9 +34,16 @@
     // await btse.price();
     await btse.price(symbol);
 
-    // await btse.trades();
-    await btse.trades(symbol, undefined, undefined, 42, true);
-    */
+    // await btse.trades()
+    await btse.trades(symbol, undefined, undefined, 42, false);
 
-    // await btse.balance();
+    // Authenticated Endpoints
+    await btse.balance();
+    await btse.limitSell(symbol, 1, 5);
+    await btse.openOrders(symbol);
+    await btse.cancelOrder(symbol);
+
+    // Orders dead man's switch
+    await btse.cancelAllAfter();
+
 })().catch(e => console.log(e));
