@@ -1,9 +1,9 @@
-(async () => {
-    const crypto = require("crypto-js");
-    const EventEmitter = require("events");
-    const axios = require("axios");
-    const WebSocket = require("ws");
-    const fs = require("fs");
+( async () => {
+    const crypto = require( "crypto-js" );
+    const EventEmitter = require( "events" );
+    const axios = require( "axios" );
+    const WebSocket = require( "ws" );
+    const fs = require( "fs" );
     const exports = module.exports;
 
     const _baseURL = "https://api.btse.com/";
@@ -15,37 +15,37 @@
         _feed;
 
     const emitter = new EventEmitter();
-    const instance = axios.create({
+    const instance = axios.create( {
         headers: {
             "Content-Type": "application/json",
             "User-Agent": "node-btse-api"
         },
         timeout: 30000,
         baseURL: _baseURL
-    });
+    } );
 
-    async function request(url, params = {}) {
-        return new Promise((resolve, reject) => {
-            instance.get(url, {
+    async function request( url, params = {} ) {
+        return new Promise( ( resolve, reject ) => {
+            instance.get( url, {
                 params
-            })
-                .then(response => {
-                    resolve(response.data);
-                })
-                .catch(error => {
-                    if (error.response) console.warn(error.response.data);
-                    reject(error.message);
-                });
-        });
+            } )
+                .then( response => {
+                    resolve( response.data );
+                } )
+                .catch( error => {
+                    if ( error.response ) console.warn( error.response.data );
+                    reject( error.message );
+                } );
+        } );
     }
 
-    async function signedRequest(endpoint, params = undefined, method = "GET") {
-        return new Promise((resolve, reject) => {
+    async function signedRequest( endpoint, params = undefined, method = "GET" ) {
+        return new Promise( ( resolve, reject ) => {
             const timestamp = Date.now();
-            const route = endpoint.replace(`${_market}`, "");
-            const message = (params && method !== "GET") ? `${route}${timestamp}${JSON.stringify(params)}`: `${route}${timestamp}`;
-            const signature = crypto["HmacSHA384"](message, _secret);
-            const query = (method === "GET" && params) ? `?${Object.entries(params).map(([key, val]) => `${key}=${val}`).join("&")}` : "";
+            const route = endpoint.replace( `${ _market }`, "" );
+            const message = ( params && method !== "GET" ) ? `${ route }${ timestamp }${ JSON.stringify( params ) }` : `${ route }${ timestamp }`;
+            const signature = crypto["HmacSHA384"]( message, _secret );
+            const query = ( method === "GET" && params ) ? `?${ Object.entries( params ).map( ( [ key, val ] ) => `${ key }=${ val }` ).join( "&" ) }` : "";
             const authOptions = {
                 method,
                 url: _baseURL + endpoint + query,
@@ -57,25 +57,57 @@
                 },
                 data: params,
             };
-            return axios(authOptions).then(response => {
-                resolve(response.data);
-            }).catch(error => {
-                if (error.response) reject(error.response.data);
-            });
-        });
+            console.info( authOptions );
+            return axios( authOptions ).then( response => {
+                resolve( response.data );
+            } ).catch( error => {
+                if ( error.response ) reject( error.response.data );
+            } );
+        } );
     }
 
-    exports.configFile = (file) => {
-        const json = JSON.parse(fs.readFileSync(file, "utf8"));
+    /*
+    async function signedRequest( endpoint, params = undefined, method = "GET" ) {
+        return new Promise( ( resolve, reject ) => {
+            const timestamp = Date.now();
+            const route = endpoint.replace( `${ _market }`, "" );
+            let hasParams = params && Object.keys( params ).length > 0;
+            let body = hasParams ? JSON.stringify( params ) : '';
+            const message = method !== "GET" && hasParams ? `${ route }${ timestamp }${ body }` : `${ route }${ timestamp }`;
+            //const message = ( params && method !== "GET" ) ? `${ route }${ timestamp }${ JSON.stringify( params ) }` : `${ route }${ timestamp }`;
+            const signature = crypto["HmacSHA384"]( message, _secret );
+            const query = hasParams ? `?${ Object.entries( params ).map( ( [ key, val ] ) => `${ key }=${ val }` ).join( "&" ) }` : "";
+            //const query = params ? `?${ Object.entries( params ).map( ( [ key, val ] ) => `${ key }=${ val }` ).join( "&" ) }` : "";
+            let authOptions = {
+                method,
+                url: _baseURL + endpoint + query,
+                headers: {
+                    "Content-Type": "application/json",
+                    "btse-nonce": timestamp,
+                    "btse-api": _key,
+                    "btse-sign": signature.toString()
+                },
+                data: params
+            };
+            return axios( authOptions ).then( response => {
+                resolve( response.data );
+            } ).catch( error => {
+                if ( error.response ) reject( error.response.data );
+            } );
+        } );
+    }*/
+
+    exports.configFile = ( file ) => {
+        const json = JSON.parse( fs.readFileSync( file, "utf8" ) );
         _key = json.key;
         _secret = json.secret;
         _market = json.market;
         _version = json.version;
-        if (!_key || !_secret) throw "Invalid key, or secret";
+        if ( !_key || !_secret ) throw "Invalid key, or secret";
     }
 
-    exports.config = (key, secret, market = "spot", version = "v3.2") => {
-        if (!key || !secret) throw "Invalid key, or secret";
+    exports.config = ( key, secret, market = "spot", version = "v3.2" ) => {
+        if ( !key || !secret ) throw "Invalid key, or secret";
         _key = key;
         _secret = secret;
         _market = market;
@@ -87,18 +119,18 @@
      */
 
     // Retrieves funding history
-    exports.fundingHistory = async (symbol = undefined) => {
+    exports.fundingHistory = async ( symbol = undefined ) => {
         return request(
-            `${_market}/api/${_version}/funding_history`,
+            `${ _market }/api/${ _version }/funding_history`,
             {
                 symbol
-            });
+            } );
     };
 
     // OHLCV Data
-    exports.ohlcv = async (symbol, resolution = 30, start = undefined, end = undefined) => {
+    exports.ohlcv = async ( symbol, resolution = 30, start = undefined, end = undefined ) => {
         return request(
-            `${_market}/api/${_version}/ohlcv`,
+            `${ _market }/api/${ _version }/ohlcv`,
             {
                 symbol,
                 resolution,
@@ -109,20 +141,17 @@
     };
 
     // Market Depth
-    exports.orderBook = async (symbol, depth = "10") => {
-        return request(
-            `${_market}/api/${_version}/ohlcv`,
-            {
-                symbol,
-                depth: depth.toString(),
-            }
-        );
+    exports.orderBook = async ( symbol, depth = 10 ) => {
+        return request( `${ _market }/api/${ _version }/orderbook/L2`, {
+            symbol,
+            depth,
+        } );
     };
 
     // Market Summaries
-    exports.markets = async (symbol = undefined) => {
+    exports.markets = async ( symbol = undefined ) => {
         return request(
-            `${_market}/api/${_version}/market_summary`,
+            `${ _market }/api/${ _version }/market_summary`,
             {
                 symbol,
             }
@@ -130,9 +159,9 @@
     };
 
     // Get price index
-    exports.price = async (symbol = undefined) => {
+    exports.price = async ( symbol = undefined ) => {
         return request(
-            `${_market}/api/${_version}/price`,
+            `${ _market }/api/${ _version }/price`,
             {
                 symbol,
             }
@@ -140,13 +169,13 @@
     };
 
     // Get all trades
-    exports.trades = async (symbol = undefined,
-                            start = undefined,
-                            end = undefined,
-                            count = 50,
-                            includeOld = false) => {
+    exports.trades = async ( symbol = undefined,
+        start = undefined,
+        end = undefined,
+        count = 50,
+        includeOld = false ) => {
         return request(
-            `${_market}/api/${_version}/trades`,
+            `${ _market }/api/${ _version }/trades`,
             {
                 symbol,
                 "startTime": start,
@@ -162,60 +191,62 @@
      */
 
     // Account balances
-    exports.balance = async (wallet = undefined) => {
+    exports.balance = async ( wallet = undefined ) => {
         return signedRequest(
-            `${_market}/api/${_version}/user/wallet`,
-            (wallet) ? {
+            `${ _market }/api/${ _version }/user/wallet`,
+            ( wallet ) ? {
                 wallet,
             } : undefined
         );
     };
 
     // Limit buy order
-    exports.limitBuy = async (symbol, size, price) => {
+    exports.limitBuy = async ( symbol, size, price, time_in_force = 'GTC' ) => {
         return signedRequest(
-            `${_market}/api/${_version}/order`, {
+            `${ _market }/api/${ _version }/order`, { body:{
                 symbol,
                 size,
                 price,
                 type: "LIMIT",
-                side: "BUY"
-            },
+                side: "BUY",
+                time_in_force,
+            } },
             "POST"
         );
     };
 
     // Limit sell order
-    exports.limitSell = async (symbol, size, price) => {
+    exports.limitSell = async ( symbol, size, price, time_in_force = 'GTC' ) => {
         return signedRequest(
-            `${_market}/api/${_version}/order`,{
+            `${ _market }/api/${ _version }/order`, { body:{
                 symbol,
                 size,
                 price,
                 type: "LIMIT",
                 side: "SELL",
-            },
+                time_in_force
+            } },
             "POST"
         );
     };
 
     // market buy order
-    exports.marketBuy = async (symbol, size) => {
+    exports.marketBuy = async ( symbol, size ) => {
         return signedRequest(
-            `${_market}/api/${_version}/order`, {
+            `${ _market }/api/${ _version }/order`, { body:{
                 symbol,
                 size,
                 type: "MARKET",
                 side: "BUY"
-            },
+            } },
             "POST"
         );
     };
 
     // market sell order
-    exports.marketSell = async (symbol, size) => {
+    exports.marketSell = async ( symbol, size ) => {
         return signedRequest(
-            `${_market}/api/${_version}/order`, {
+            `${ _market }/api/${ _version }/order`, {
                 symbol,
                 size,
                 type: "MARKET",
@@ -226,38 +257,33 @@
     };
 
     // Get open orders
-    exports.openOrders = async (symbol, orderID = undefined, clOrderID = undefined) => {
-        console.log(symbol);
+    exports.openOrders = async ( symbol, orderID = undefined, clOrderID = undefined ) => {
+        let params = { symbol };
+        if ( orderID ) params.orderID = orderID;
+        if ( clOrderID ) params.clOrderID = clOrderID;
         return signedRequest(
-            `${_market}/api/${_version}/user/open_orders`, {
-                symbol,
-                orderID,
-                clOrderID
-            },
+            `${ _market }/api/${ _version }/user/open_orders`, params,
             "GET"
         );
     };
 
     // Cancel order
-    exports.cancelOrder = async (symbol, orderID = undefined, clOrderID = undefined) => {
-        console.log(symbol);
+    exports.cancelOrder = async ( symbol, orderID = undefined, clOrderID = undefined ) => {
+        let params = { symbol };
+        if ( orderID ) params.orderID = orderID;
+        if ( clOrderID ) params.clOrderID = clOrderID;
         return signedRequest(
-            `${_market}/api/${_version}/order`, {
-                symbol,
-                orderID,
-                clOrderID
-            },
+            `${ _market }/api/${ _version }/order`, params,
             "DELETE"
         );
     };
 
     // Orders dead man switch
-    exports.cancelAllAfter = async (timeout = 60000) => {
+    exports.cancelAllAfter = async ( timeout = 60000 ) => {
         return signedRequest(
-            `${_market}/api/${_version}/order/cancelAllAfter`,
-            {
-                timeout
-            }
+            `${ _market }/api/${ _version }/order/cancelAllAfter`,
+            { timeout },
+            "POST"
         );
     };
 
@@ -279,4 +305,4 @@
     }
 
  */
-})();
+} )();
