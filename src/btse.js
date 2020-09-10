@@ -231,8 +231,8 @@
         return signedRequest(
             `${_market}/api/${_version}/user/open_orders`, {
                 symbol,
-                orderID, // : orderID ? orderID : "",
-                clOrderID//: clOrderID ? clOrderID : ""
+                orderID,
+                clOrderID
             },
             "GET"
         );
