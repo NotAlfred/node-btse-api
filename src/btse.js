@@ -43,9 +43,10 @@
         return new Promise((resolve, reject) => {
             const timestamp = Date.now();
             const route = endpoint.replace(`${_market}`, "");
-            const message = (params && method !== "GET") ? `${route}${timestamp}${JSON.stringify(params)}`: `${route}${timestamp}`;
+            const message = (params && method !== "GET" && method !== "DELETE") ? `${route}${timestamp}${JSON.stringify(params)}`: `${route}${timestamp}`;
             const signature = crypto["HmacSHA384"](message, _secret);
-            const query = (method === "GET" && params) ? `?${Object.entries(params).map(([key, val]) => `${key}=${val}`).join("&")}` : "";
+            Object.keys(params).forEach(key => params[key] === undefined && delete params[key])
+            const query = ((method === "GET" || method === "DELETE") && params) ? `?${Object.entries(params).map(([key, val]) => `${key}=${val}`).join("&")}` : "";
             const authOptions = {
                 method,
                 url: _baseURL + endpoint + query,
@@ -227,12 +228,11 @@
 
     // Get open orders
     exports.openOrders = async (symbol, orderID = undefined, clOrderID = undefined) => {
-        console.log(symbol);
         return signedRequest(
             `${_market}/api/${_version}/user/open_orders`, {
                 symbol,
-                orderID,
-                clOrderID
+                orderID, // : orderID ? orderID : "",
+                clOrderID//: clOrderID ? clOrderID : ""
             },
             "GET"
         );
@@ -240,7 +240,6 @@
 
     // Cancel order
     exports.cancelOrder = async (symbol, orderID = undefined, clOrderID = undefined) => {
-        console.log(symbol);
         return signedRequest(
             `${_market}/api/${_version}/order`, {
                 symbol,
