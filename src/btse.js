@@ -171,6 +171,14 @@
             } : undefined
         );
     };
+    
+    // Convert asset to another easily
+    exports.convert = async ( amount, fromAsset, toAsset ) => signedRequest(
+        `${ _market }/api/${ _version }/user/wallet/convert`, {
+            amount, fromAsset, toAsset,
+        },
+        "POST",
+    );
 
     // Limit buy order
     exports.limitBuy = async (symbol, size, price) => {
